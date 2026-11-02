@@ -48,7 +48,7 @@ For IntelliJ IDEA, import the project as a Gradle project, select JDK 17 as the 
 
 - Set `mod_id`, `mod_name` and `version` in `gradle.properties`, the project name in `settings.gradle`, and group in `build.gradle`.
 - Set `mod_description`, `mod_authors` (comma-separated), `mod_url` and `mod_credits` in `gradle.properties`; `mcmod.info` is populated automatically, including the mod ID, name and version.
-- Replace the example mod and Mixin in `src/main/java/example`. If you rename the package, also update `src/templates/java/example` and the package in `src/main/resources/mod.mixins.json`.
-- Mod constants are generated from these properties. Mixin config and refmap names are generated as `<mod_id>.mixins.json` and `<mod_id>.mixins.refmap.json`.
+- Replace the example mod and Mixin in `src/main/java/example`. If you rename the package, also update the package in `src/main/resources/mod.mixins.json`.
+- Keep the `@MOD_ID@`, `@MOD_NAME@` and `@MOD_VERSION@` string placeholders in the main class; Gradle replaces them in a source copy before compilation. Mixin config and refmap names are generated as `<mod_id>.mixins.json` and `<mod_id>.mixins.refmap.json`.
 
 Build with `build`. The release JAR is `build/libs/<mod_id>-desiderium-1.6.4-<version>.jar`; the `-dev.jar` is for development only.

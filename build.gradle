@@ -6,15 +6,22 @@ def mixinConfigName = "${modId}.mixins.json"
 def mixinRefmapName = "${modId}.mixins.refmap.json"
 base.archivesName = "${modId}-desiderium-1.6.4"
 
-def generateModMetadata = tasks.register('generateModMetadata', Sync) {
-    def metadata = [modIdLiteral: groovy.json.JsonOutput.toJson(modId),
-                    modNameLiteral: groovy.json.JsonOutput.toJson(modName),
-                    modVersionLiteral: groovy.json.JsonOutput.toJson(project.version.toString())]
-    inputs.properties(metadata)
-    from('src/templates/java') { expand(metadata) }
-    into(layout.buildDirectory.dir('generated/sources/modMetadata/java'))
+def prepareModSources = tasks.register('prepareModSources', Sync) {
+    def tokens = [MOD_ID: modId, MOD_NAME: modName, MOD_VERSION: project.version.toString()]
+        .collectEntries { key, value ->
+            def literal = groovy.json.JsonOutput.toJson(value)
+            [(key): literal.substring(1, literal.length() - 1)]
+        }
+    inputs.properties(tokens)
+    from('src/main/java') {
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: tokens)
+    }
+    filteringCharset = 'UTF-8'
+    into(layout.buildDirectory.dir('prepared-sources/main/java'))
 }
-sourceSets.main.java.srcDir(generateModMetadata)
+tasks.named('compileJava', JavaCompile) {
+    setSource(files(prepareModSources).asFileTree)
+}
 
 tasks.named('processResources', ProcessResources) {
     def modInfo = [

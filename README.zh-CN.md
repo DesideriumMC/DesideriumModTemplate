@@ -48,7 +48,7 @@
 
 - 在 `gradle.properties` 中设置 `mod_id`、`mod_name` 和 `version`，在 `settings.gradle` 中设置项目名，在 `build.gradle` 中设置 group。
 - 在 `gradle.properties` 中设置 `mod_description`、`mod_authors`（逗号分隔）、`mod_url` 和 `mod_credits`；`mcmod.info` 自动填充这些信息及模组 ID、名称和版本。
-- 替换 `src/main/java/example` 中的示例模组和 Mixin。修改包名时，也要同步修改 `src/templates/java/example` 和 `src/main/resources/mod.mixins.json` 中的包名。
-- 模组常量根据上述属性生成，Mixin 配置和 refmap 自动命名为 `<mod_id>.mixins.json`、`<mod_id>.mixins.refmap.json`。
+- 替换 `src/main/java/example` 中的示例模组和 Mixin。修改包名时，也要同步修改 `src/main/resources/mod.mixins.json` 中的包名。
+- 保留主类中的 `@MOD_ID@`、`@MOD_NAME@` 和 `@MOD_VERSION@` 字符串占位符，Gradle 在编译前替换源码副本中的对应值。Mixin 配置和 refmap 自动命名为 `<mod_id>.mixins.json`、`<mod_id>.mixins.refmap.json`。
 
 使用 `build` 构建，正式产物为 `build/libs/<mod_id>-desiderium-1.6.4-<version>.jar`；`-dev.jar` 仅供开发使用。
