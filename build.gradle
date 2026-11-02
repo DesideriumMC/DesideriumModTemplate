@@ -1,6 +1,39 @@
 plugins { id 'dev.desiderium.loom' }
 group = 'example'
-version = '1.0.0'
+def modId = providers.gradleProperty('mod_id').get()
+def modName = providers.gradleProperty('mod_name').get()
+def mixinConfigName = "${modId}.mixins.json"
+def mixinRefmapName = "${modId}.mixins.refmap.json"
+base.archivesName = "${modId}-desiderium-1.6.4"
+
+def generateModMetadata = tasks.register('generateModMetadata', Sync) {
+    def metadata = [modIdLiteral: groovy.json.JsonOutput.toJson(modId),
+                    modNameLiteral: groovy.json.JsonOutput.toJson(modName),
+                    modVersionLiteral: groovy.json.JsonOutput.toJson(project.version.toString())]
+    inputs.properties(metadata)
+    from('src/templates/java') { expand(metadata) }
+    into(layout.buildDirectory.dir('generated/sources/modMetadata/java'))
+}
+sourceSets.main.java.srcDir(generateModMetadata)
+
+tasks.named('processResources', ProcessResources) {
+    def modInfo = [
+        mod_id: modId,
+        mod_name: modName,
+        mod_version: project.version.toString(),
+        mod_description: providers.gradleProperty('mod_description').getOrElse(''),
+        mod_authors: providers.gradleProperty('mod_authors').getOrElse('').split(',').collect { it.trim() }.findAll { it },
+        mod_url: providers.gradleProperty('mod_url').getOrElse(''),
+        mod_credits: providers.gradleProperty('mod_credits').getOrElse('')
+    ].collectEntries { key, value -> [(key): groovy.json.JsonOutput.toJson(value)] }
+    inputs.property('modInfo', modInfo)
+    inputs.properties(mod_id: modId, mixin_refmap: mixinRefmapName)
+    filesMatching('mcmod.info') { expand(modInfo) }
+    filesMatching('mod.mixins.json') {
+        expand(mixin_refmap: mixinRefmapName)
+        name = mixinConfigName
+    }
+}
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 tasks.withType(JavaCompile).configureEach { options.release = 8 }
 def loaderJar = file(providers.gradleProperty('loaderJar').get())
@@ -18,8 +51,8 @@ dependencies {
     runtimeOnly files(loaderMixinJar)
 }
 desiderium {
-    mixin 'main', 'mixins.example.refmap.json'
-    mixinConfig 'mixins.example.json'
+    mixin 'main', mixinRefmapName
+    mixinConfig mixinConfigName
     runs {
         client { programArg '--username=Developer'; runDir = 'run-client' }
         server { runDir = 'run-server' }
