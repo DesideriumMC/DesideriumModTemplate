@@ -6,43 +6,31 @@
 
 ## Installation
 
-使用 **Use this template** 创建仓库并克隆到本机。安装 **JDK 17** 用于 Gradle 和编译，安装 **Java 8** 用于运行游戏。首次构建需要联网。
+使用 **Use this template** 创建仓库并克隆。脚本自动发现 JDK 17（Gradle 8.14.6 与编译，`--release 8`）和 JDK 8（游戏运行）；缺失版本自动下载并校验 SHA-256。首次构建需要联网。
 
-### Windows
-
-将 `JAVA_HOME` 设置为 JDK 17 的安装目录，在项目目录运行：
+### Windows x64
 
 ```powershell
-./gradlew.bat genSources genIdeaRuns
-./gradlew.bat build
+./setup.ps1
+./build.ps1 genSources genIdeaRuns build
+./build.ps1 runClient
+# ./build.ps1 runServer
 ```
 
-启动客户端或服务端：
-
-```powershell
-./gradlew.bat runClient
-./gradlew.bat runServer
-```
-
-### Linux
-
-将 `JAVA_HOME` 设置为 JDK 17 的安装目录，在项目目录运行：
+### Linux x86_64 (glibc)
 
 ```bash
-./gradlew genSources genIdeaRuns
-./gradlew build
+./setup.sh
+./build.sh genSources genIdeaRuns build
+./build.sh runClient
+# ./build.sh runServer
 ```
 
-启动客户端或服务端：
+构建脚本首次使用时自动执行 setup，并将参数传递给 Gradle Wrapper。Setup 复用已安装的 JDK，包括 IntelliJ IDEA 下载目录及 `JAVA8_HOME` / `JAVA17_HOME`、`JDK8` / `JDK17` 环境变量；缺失版本从 Azul Zulu 下载，按 `gradle/jdks.lock.tsv` 校验后安装到 `.jdks/8` 和 `.jdks/17`。使用 `./setup.ps1 -Download` 或 `./setup.sh --download` 可优先使用项目内下载的 JDK。
 
-```bash
-./gradlew runClient
-./gradlew runServer
-```
+Setup 通过 Windows 目录联接或 Linux 符号链接，将选定的 JDK 注册到 `~/.jdks`，JDK 文件保留在原位置。`gradle.properties` 纳入 Git，保存共享模组配置及可选的手工 Toolchain 配置，setup 不再修改它。本地 JDK 选择记录在 `.jdks/homes.properties`，不纳入 Git。Gradle 通过 `gradle/gradle-daemon-jvm.properties` 选择 JDK 17。移动项目后请重新运行 setup 刷新 JDK 链接。
 
-如果未能识别 Java，在 `~/.gradle/gradle.properties`（Windows 为 `%USERPROFILE%/.gradle/gradle.properties`）中设置 `org.gradle.java.installations.paths`，填写 JDK 17 和 Java 8 的安装目录，以逗号分隔。
-
-使用 IntelliJ IDEA 时，以 Gradle 项目导入，Gradle JVM 选择 JDK 17，生成源码后重新加载 Gradle。
+Windows 需要 PowerShell 5.1 或更新版本；Linux 需要 Bash、glibc、curl、tar、sha256sum 和标准 GNU 工具。导入 IntelliJ IDEA 前运行 setup 注册 JDK 供 Gradle 自动发现，生成源码后重新加载 Gradle。配置好 JDK 后仍可直接使用 Wrapper。
 
 ## Customize
 

@@ -10,11 +10,11 @@ import org.gradle.api.publish.maven.tasks.PublishToMavenLocal;
 import org.gradle.jvm.tasks.Jar;
 import net.fabricmc.loom.task.ReobfJarTask;
 
-/** Supported Gradle 8.9 entry point. Legacy volde builds retain their existing behavior. */
+/** Supported Gradle 8.9 / 8.14.6 entry point. Legacy volde builds retain their existing behavior. */
 public class DesideriumPlugin implements Plugin<Project> {
     public void apply(Project project) {
-        if (!project.getGradle().getGradleVersion().equals("8.9"))
-            throw new GradleException("Desiderium Loom currently requires Gradle 8.9; use the template wrapper.");
+        if (!project.getGradle().getGradleVersion().equals("8.9") && !project.getGradle().getGradleVersion().equals("8.14.6"))
+            throw new GradleException("Desiderium Loom requires Gradle 8.9 or 8.14.6; use the template wrapper.");
         project.getPluginManager().apply(LoomGradlePlugin.class);
         project.getTasks().withType(Jar.class).configureEach(t -> {
             t.setPreserveFileTimestamps(false);

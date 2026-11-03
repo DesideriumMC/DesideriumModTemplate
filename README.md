@@ -6,43 +6,31 @@ Mod development template for Minecraft 1.6.4 and DesideriumLoader, with Mixin su
 
 ## Installation
 
-Create a repository with **Use this template**, then clone it. Install **JDK 17** for Gradle and compilation, and **Java 8** to run the game. The first build requires an internet connection.
+Create a repository with **Use this template**, then clone it. Scripts discover JDK 17 (Gradle 8.14.6 and compilation with `--release 8`) and JDK 8 (game runtime), downloading missing versions with SHA-256 verification. The first build requires internet access.
 
-### Windows
-
-Set `JAVA_HOME` to your JDK 17 installation, then run in the project directory:
+### Windows x64
 
 ```powershell
-./gradlew.bat genSources genIdeaRuns
-./gradlew.bat build
+./setup.ps1
+./build.ps1 genSources genIdeaRuns build
+./build.ps1 runClient
+# ./build.ps1 runServer
 ```
 
-Launch the client or server:
-
-```powershell
-./gradlew.bat runClient
-./gradlew.bat runServer
-```
-
-### Linux
-
-Set `JAVA_HOME` to your JDK 17 installation, then run in the project directory:
+### Linux x86_64 (glibc)
 
 ```bash
-./gradlew genSources genIdeaRuns
-./gradlew build
+./setup.sh
+./build.sh genSources genIdeaRuns build
+./build.sh runClient
+# ./build.sh runServer
 ```
 
-Launch the client or server:
+Build scripts run setup automatically on first use and forward arguments to the Gradle Wrapper. Setup reuses installed JDKs, including IntelliJ IDEA downloads and `JAVA8_HOME` / `JAVA17_HOME`, `JDK8` / `JDK17`. Missing versions are downloaded from Azul Zulu, verified against `gradle/jdks.lock.tsv`, and installed under `.jdks/8` and `.jdks/17`. Use `./setup.ps1 -Download` or `./setup.sh --download` to prefer project-local downloads.
 
-```bash
-./gradlew runClient
-./gradlew runServer
-```
+Setup registers selected JDKs in `~/.jdks` using Windows directory junctions or Linux symbolic links; JDK files stay in their original locations. The tracked `gradle.properties` contains shared mod configuration and optional manual Toolchain overrides. Setup leaves it unchanged. Local selections are stored in `.jdks/homes.properties` and excluded from Git. Gradle selects JDK 17 using `gradle/gradle-daemon-jvm.properties`. Run setup again after moving the project to refresh JDK links.
 
-If Java is not detected, set `org.gradle.java.installations.paths` to your JDK 17 and Java 8 installation directories, separated by a comma, in `~/.gradle/gradle.properties` (`%USERPROFILE%/.gradle/gradle.properties` on Windows).
-
-For IntelliJ IDEA, import the project as a Gradle project, select JDK 17 as the Gradle JVM, and reload Gradle after generating sources.
+Windows requires PowerShell 5.1 or later. Linux requires Bash, glibc, curl, tar, sha256sum and standard GNU utilities. Run setup before importing into IntelliJ IDEA to register JDKs for Gradle discovery; reload Gradle after generating sources. Direct Wrapper use remains available with configured JDKs.
 
 ## Customize
 
